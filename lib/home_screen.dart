@@ -12,7 +12,7 @@ class _home_screenState extends State<home_screen> {
   String activePlayer = 'X';
   bool gameover = false;
   int turn = 0;
-  String result = 'loser';
+  String result = "It's Draw !";
   Game game = Game();
   bool isSwitched = false;
   @override
@@ -20,9 +20,38 @@ class _home_screenState extends State<home_screen> {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       body: SafeArea(
-          child: Column(
+          child: MediaQuery.of(context).orientation==Orientation.portrait?Column(
         children: [
-          SwitchListTile.adaptive(
+          ...head_Page(),
+          _Expanded(context),
+          ..._talePage()
+        ],
+      ):Row(children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              ...head_Page(),
+              ..._talePage()
+            ],
+          ),
+        ),
+        _Expanded(context)
+      ],)
+      
+      )
+      ,
+    );
+  }
+
+
+
+
+
+  List<Widget> head_Page(){
+    return [
+     SwitchListTile.adaptive(
               title: const Text(
                 'Turn on/off two player mode',
                 style: TextStyle(fontSize: 28, color: Colors.white),
@@ -40,42 +69,58 @@ class _home_screenState extends State<home_screen> {
             "It's $activePlayer turn".toUpperCase(),
             style: const TextStyle(fontSize: 38, color: Colors.white),
             textAlign: TextAlign.center,
-          ),
-          Expanded(
-            child: GridView.count(
-                padding: const EdgeInsets.all(16),
-                crossAxisCount: 3,
-                mainAxisSpacing: 8.0,
-                crossAxisSpacing: 8.0,
-                childAspectRatio: 1.0,
-                children: List.generate(
-                  9,
-                  (index) => InkWell(
-                       borderRadius: BorderRadius.circular(16),
-                    onTap: gameover?null:()=>_ontap(index),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).shadowColor,
-                          borderRadius: BorderRadius.circular(16)),
-                      child:  Center(
-                        child:  Text(
-                          Player.playerx.contains(index)?Player.x
-                          :Player.playero.contains(index)?Player.o:Player.empty,
-                          style:
-                               TextStyle(fontSize: 52, color: Player.playerx.contains(index)?Colors.blue
-                          :Colors.pink),
-                          textAlign: TextAlign.center,
-                        ),
+          )
+    ];
+  }
+
+
+
+
+  Expanded _Expanded(BuildContext context) {
+    return Expanded(
+          child: GridView.count(
+              padding: const EdgeInsets.all(16),
+              crossAxisCount: 3,
+              mainAxisSpacing: 8.0,
+              crossAxisSpacing: 8.0,
+              childAspectRatio: 1.0,
+              children: List.generate(
+                9,
+                (index) => InkWell(
+                     borderRadius: BorderRadius.circular(16),
+                  onTap: gameover?null:()=>_ontap(index),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).shadowColor,
+                        borderRadius: BorderRadius.circular(16)),
+                    child:  Center(
+                      child:  Text(
+                        Player.playerx.contains(index)?Player.x
+                        :Player.playero.contains(index)?Player.o:Player.empty,
+                        style:
+                             TextStyle(fontSize: 52, color: Player.playerx.contains(index)?Colors.blue
+                        :Colors.pink),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
-                )),
-          ),
-          Text(
+                ),
+              )),
+        );
+  }
+
+
+
+
+  List<Widget>_talePage(){
+    return [
+           SizedBox(height: 10),
+      Text(
             result,
             style: const TextStyle(fontSize: 28, color: Colors.white),
             textAlign: TextAlign.center,
           ),
+               SizedBox(height: 10),
           ElevatedButton.icon(
             onPressed: () {
               setState(() {
@@ -95,9 +140,7 @@ class _home_screenState extends State<home_screen> {
                 backgroundColor:
                     MaterialStateProperty.all(Theme.of(context).splashColor)),
           )
-        ],
-      )),
-    );
+    ];
   }
   
   _ontap(int index) async{
@@ -106,7 +149,7 @@ if(!Player.playerx.contains(index)&&!Player.playero.contains(index)){
     game.playgame(index,activePlayer);
     updateState(index);     
      }
-       if(!isSwitched&&!gameover){
+       if(!isSwitched&&!gameover && turn !=9){
       await  game.autoPlay(activePlayer);
       updateState(index);
       }
